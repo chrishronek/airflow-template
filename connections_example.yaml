@@ -1,0 +1,12 @@
+# copy this file using: cp connections_example.yaml connections.yaml
+# connections.yaml is in .gitignore
+# add your redshift connection credentials to it and it will get built as an Airflow connection
+
+redshift_default:
+  conn_type: redshift
+  extra: null
+  host: <insert-redshift-host>
+  login: <insert-redshift-login>
+  password: <insert-redshift-password>
+  port: <insert-redshift-port>
+  schema: <insert-redshift-database-name>
