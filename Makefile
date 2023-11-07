@@ -19,5 +19,5 @@ clean: ## stop and delete containers, delete volumes with database data and down
 restart: ## stop and start containers
 	$(DOCKER-COMPOSE) down && $(DOCKER-COMPOSE) up --detach
 
-reset: ## stops all services, delete containers, volumes and images, then start all services
+reset: ## stops and restarts all services with a cache clearing step
 	$(DOCKER-COMPOSE) down && $(DOCKER-COMPOSE) down --volumes --rmi all && $(DOCKER-COMPOSE) up --detach
