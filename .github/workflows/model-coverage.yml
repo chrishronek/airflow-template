@@ -3,7 +3,7 @@ name: model-coverage
 on:
   pull_request:
     paths:
-      - 'dags/dbt/jaffle_shop/models/**.sql'
+      - 'dags/dbt/cosmos_jaffle_shop/models/**.sql'
 
 jobs:
   model-coverage:
