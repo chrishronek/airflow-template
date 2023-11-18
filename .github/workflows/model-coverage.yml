@@ -25,7 +25,7 @@ jobs:
       - name: Run Coverage Script
         id: run-script
         run: |
-          python ./tests/model_coverage.py --project_dir ./dags/dbt/linqto_dwh --filtered_models "$CHANGED_MODELS"
+          python ./tests/model_coverage.py --project_dir ./dags/dbt/cosmos_jaffle_shop --filtered_models "$CHANGED_MODELS"
         env:
           CHANGED_MODELS: ${{ env.CHANGED_MODELS }}
 
