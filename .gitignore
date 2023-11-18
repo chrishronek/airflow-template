@@ -1,3 +1,4 @@
 connections.yaml
 variables.json
 logs/*
+__pycache__

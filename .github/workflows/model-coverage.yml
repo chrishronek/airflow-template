@@ -1,0 +1,41 @@
+name: model-coverage
+
+on:
+  pull_request:
+    paths:
+      - 'dags/dbt/jaffle_shop/models/**.sql'
+
+jobs:
+  model-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: Get Changed dbt Model Names
+        run: |
+          git fetch origin
+          CHANGED_MODELS=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.sha }} | grep -E 'dags/dbt/linqto_dwh/models/.*\.sql$' | awk -F'/' '{print $NF}' | sed 's/\.sql$//' | tr '\n' ' ')
+          echo "CHANGED_MODELS=$CHANGED_MODELS" >> $GITHUB_ENV
+
+      - name: Install Python Packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./tests/requirements.txt
+
+      - name: Run Coverage Script
+        id: run-script
+        run: |
+          python ./tests/model_coverage.py --project_dir ./dags/dbt/linqto_dwh --filtered_models "$CHANGED_MODELS"
+        env:
+          CHANGED_MODELS: ${{ env.CHANGED_MODELS }}
+
+      - name: Comment on PR with the captured output
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{ steps.run-script.outputs.REPORT_OUTPUT }}`
+            })
