@@ -262,26 +262,29 @@ class DbtCoverage:
         return table
 
     def column_report(self, joined_models: list):
+        output = ""
         for d in joined_models:
             if d["extra_yml_col_count"] > 0 or d["yml_missing_col_count"] > 0 or d["missing_col_descr_count"] > 0:
-                print("\n--------------------------------------------------------------------")
-                print(f"{d['parent'].upper()}.{d['model_name'].upper()} COLUMN DISCREPANCIES")
-                print("--------------------------------------------------------------------")
+                output += "\n\n---"
+                output += f"{d['parent'].upper()}.{d['model_name'].upper()} COLUMN DISCREPANCIES"
+                output += "---"
 
                 if d["extra_yml_col_count"] > 0:
-                    print("\nThe following columns don't exist in SQL and can be removed from properties.yml:")
+                    output += "\nThe following columns don't exist in SQL and can be removed from properties.yml:"
                 for col in d.get("extra_yml_cols", []):
-                    print(f" - {col}")
+                    output += f"\n - {col}"
 
                 if d["yml_missing_col_count"] > 0:
-                    print("\nThe following columns are completely missing in the properties.yml:")
+                    output += "\nThe following columns are completely missing in the properties.yml:"
                 for col in d.get("yml_missing_cols", []):
-                    print(f" - {col}")
+                    output += f"\n - {col}"
 
                 if d["missing_col_descr_count"] > 0:
-                    print("\nThe following columns are missing descriptions in properties.yml:")
+                    output += "\nThe following columns are missing descriptions in properties.yml:"
                 for col in d.get("missing_col_descr", []):
-                    print(f" - {col}")
+                    output += f"\n - {col}"
+
+        return output
 
     def column_report_md(self, joined_models: list) -> str:
         """
@@ -372,6 +375,6 @@ if __name__ == "__main__":
     else:
         # Output total coverage stats table
         stats_tbl = dbt_parse.total_coverage_stats_tbl(joined_models=joined_models)
-        column_report = dbt_parse.column_report_md(joined_models=joined_models)
+        column_report = dbt_parse.column_report(joined_models=joined_models)
         report_output = f"{stats_tbl}\n{column_report}"
         print(report_output)
