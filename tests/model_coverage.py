@@ -173,19 +173,15 @@ class DbtCoverage:
             columns_from_yml = [col["col_name"] for col in result.get("columns_from_yml", [])]
             columns_from_yml_w_descr = result.get("columns_from_yml", [])
             table_descriptions = 1 if result.get("has_table_description", False) is True else 0
-            column_descriptions = result.get("column_descriptions", 0)
-            written_descriptions = table_descriptions + column_descriptions
-            expected_descriptions = len(columns_from_sql) + 1  # descriptions for all columns and table itself
 
             # Find descriptions for the expected SQL columns
             missing_col_descr = []
             for col in columns_from_sql:
-                if col in columns_from_yml:
-                    for col_w_descr in columns_from_yml_w_descr:
-                        if col_w_descr.get("col_name") == col:
-                            descr = col_w_descr.get("col_descr")
-                            if descr is None:
-                                missing_col_descr.append(col)
+                for col_w_descr in columns_from_yml_w_descr:
+                    if col_w_descr.get("col_name") == col:
+                        descr = col_w_descr.get("col_descr")
+                        if descr is None:
+                            missing_col_descr.append(col)
 
             # Find columns that should exist in documentation but don't
             yml_missing_cols = []
@@ -199,12 +195,17 @@ class DbtCoverage:
                 if col not in columns_from_sql:
                     yml_extra_cols.append(col)
 
+            # Calculate the number of sql columns with descriptions
+            unwritten_descriptions = (len(yml_missing_cols) + len(missing_col_descr))
+            written_descriptions = len(columns_from_sql) - unwritten_descriptions
+
             # Calculate the percentage of descriptions
             description_coverage = 100 * (
-                written_descriptions / expected_descriptions if expected_descriptions != 0 else 0
+                written_descriptions / len(columns_from_sql) if len(columns_from_sql) != 0 else 0
             )
 
-            result["description_coverage"] = description_coverage
+            result["col_description_coverage"] = description_coverage
+            result["tbl_description_coverage"] = result.get("has_table_description", False)
             result["test_coverage"] = result.get("has_column_test", False)
             result["missing_col_descr_count"] = len(missing_col_descr)
             result["missing_col_descr"] = missing_col_descr
@@ -239,7 +240,8 @@ class DbtCoverage:
             tbl_list = [
                 (
                     f"{d['parent']}.{d['model_name']}",
-                    self._format_percentage_gh(d["description_coverage"]),
+                    self._format_boolean_gh(d["tbl_description_coverage"]),
+                    self._format_percentage_gh(d["col_description_coverage"]),
                     self._format_boolean_gh(d["test_coverage"]),
                 )
                 for d in joined_models
@@ -248,7 +250,8 @@ class DbtCoverage:
             tbl_list = [
                 (
                     f"{d['parent']}.{d['model_name']}",
-                    self._format_percentage_local(d["description_coverage"]),
+                    self._format_boolean_local(d["tbl_description_coverage"]),
+                    self._format_percentage_local(d["col_description_coverage"]),
                     self._format_boolean_local(d["test_coverage"]),
                 )
                 for d in joined_models
@@ -256,7 +259,7 @@ class DbtCoverage:
 
         table = tabulate(
             tbl_list,
-            headers=["Model", "Descr. Coverage", "Test Coverage"],
+            headers=["Model", "Tbl Doc", "Column Docs", "Test"],
             tablefmt="github",
         )
         return table
