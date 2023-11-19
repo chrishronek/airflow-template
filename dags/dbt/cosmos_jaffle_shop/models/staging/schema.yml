@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    description: "The raw untransformed table of customer orders"
+    columns:
+      - name: order_id
+        description: "The Unique Identifier for an order"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "The unique identifier for the customer who made the order"
+      - name: order_date
+        description: "The date the order was initially placed"
+      - name: status
+        description: | 
+          The order's current state can be any of the following:
+            - placed: Customer has placed the order and is pending shipment
+            - shipped: Order is in transit
+            - completed: Order has been delivered
+            - return_pending: Customer has initiated a return of the order 
+            - return: Order return has been completed
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
