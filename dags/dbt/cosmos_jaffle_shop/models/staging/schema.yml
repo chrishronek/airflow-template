@@ -11,10 +11,18 @@ models:
   - name: stg_orders
     columns:
       - name: order_id
+        description: "The Unique Identifier for an order"
         tests:
           - unique
           - not_null
       - name: status
+        description: | 
+          The order's current state can be any of the following:
+            - placed: Customer has placed the order and is pending shipment
+            - shipped: Order is in transit
+            - completed: Order has been delivered
+            - return_pending: Customer has initiated a return of the order 
+            - return: Order return has been completed
         tests:
           - accepted_values:
               values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']

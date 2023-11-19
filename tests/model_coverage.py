@@ -50,8 +50,8 @@ class DbtCoverage:
             source=source_function,
             is_incremental=is_incremental_function,
             env_var=use_main_arg,
-            dynamic_schema=use_main_arg,
             config=null_it,
+            var=use_main_arg
         )
 
         # return the rendered SQL
@@ -172,7 +172,6 @@ class DbtCoverage:
             columns_from_sql = result.get("columns_from_sql", [])
             columns_from_yml = [col["col_name"] for col in result.get("columns_from_yml", [])]
             columns_from_yml_w_descr = result.get("columns_from_yml", [])
-            table_descriptions = 1 if result.get("has_table_description", False) is True else 0
 
             # Find descriptions for the expected SQL columns
             missing_col_descr = []
