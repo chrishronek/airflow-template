@@ -9,12 +9,17 @@ models:
           - not_null
 
   - name: stg_orders
+    description: "The raw untransformed table of customer orders"
     columns:
       - name: order_id
         description: "The Unique Identifier for an order"
         tests:
           - unique
           - not_null
+      - name: customer_id
+        description: "The unique identifier for the customer who made the order"
+      - name: order_date
+        description: "The date the order was initially placed"
       - name: status
         description: | 
           The order's current state can be any of the following:
